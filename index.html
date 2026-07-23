@@ -326,14 +326,17 @@
   }
   .sufler-close:hover{background:rgba(255,255,255,.15)}
   .sufler-body{
-    flex:1;display:flex;align-items:center;justify-content:center;
+    flex:1;display:flex;
     padding:30px clamp(20px,6vw,80px);cursor:pointer;overflow-y:auto;
   }
   .sufler-text{
-    max-width:920px;font-family:'Spectral',serif;
+    margin:auto;max-width:920px;font-family:'Spectral',serif;
     font-size:clamp(19px,2.6vw,32px);line-height:1.65;
     white-space:pre-wrap;text-align:center;
     animation:suflerIn .35s ease both;
+  }
+  .sufler-text.long{
+    font-size:clamp(16px,1.9vw,23px);line-height:1.7;text-align:left;
   }
   @keyframes suflerIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
   .sufler-foot{
@@ -797,7 +800,20 @@ let suflerIdx = 0;
 function openSufler(id){
   const p = state.procedures.find(x=>x.id===id);
   if(!p || !p.notes) return;
-  suflerSlides = p.notes.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+  /* podział na slajdy: puste linie, a bardzo długie fragmenty dodatkowo po liniach */
+  const chunks = p.notes.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+  suflerSlides = [];
+  const LIMIT = 550;
+  chunks.forEach(ch=>{
+    if(ch.length <= LIMIT){ suflerSlides.push(ch); return; }
+    const lines = ch.split('\n');
+    let buf = '';
+    lines.forEach(ln=>{
+      if(buf && (buf.length + ln.length + 1) > LIMIT){ suflerSlides.push(buf); buf = ln; }
+      else buf = buf ? buf + '\n' + ln : ln;
+    });
+    if(buf) suflerSlides.push(buf);
+  });
   if(!suflerSlides.length) return;
   suflerIdx = 0;
   $('sufler-title').textContent = p.title;
@@ -810,7 +826,10 @@ function suflerShow(){
   t.style.animation = 'none';
   void t.offsetWidth; /* restart animacji */
   t.style.animation = '';
-  t.textContent = suflerSlides[suflerIdx];
+  const txt = suflerSlides[suflerIdx];
+  t.textContent = txt;
+  t.classList.toggle('long', txt.length > 280);
+  $('sufler-body').scrollTop = 0;
   $('sufler-count').textContent = (suflerIdx+1) + ' / ' + suflerSlides.length;
   $('sufler-prev').disabled = suflerIdx===0;
   $('sufler-next').textContent = suflerIdx===suflerSlides.length-1 ? 'Zakończ ✓' : 'Dalej →';
