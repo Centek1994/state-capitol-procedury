@@ -535,7 +535,9 @@
         "Stworzenie sprawy w statecapitol.app i wrzucenie wniosku jako dokument zewnętrzny (https://statecapitol.app/dashboard/go/cases)",
         "Dodanie koncesji w rejestrze koncesji w statecapitol.app (https://statecapitol.app/dashboard/go/registry/franchise)",
         "Wystawienie dokumentu koncesji w sprawie założonej w punkcie 2 (Dokument urzędowy → Potwierdzenie wydania koncesji)",
-        "Pobranie opłaty bądź poinformowanie o konieczności wykonania przelewu"
+        "Pobranie opłaty bądź poinformowanie o konieczności wykonania przelewu (Ustanowiony koszt wydania koncesji wynosi:",
+        "dla koncesji do dystrybucji i sprzedaży - $15.000",
+        "dla koncesji do produkcji - $45.000)"
       ],
       "notes": "Akty prawne:\n• BFRT 215–225 — produkcja, dystrybucja i sprzedaż broni palnej i amunicji\n• BFRT 230–238 — strzelnice"
     },
@@ -602,6 +604,11 @@
     }
   ],
   "log": [
+    {
+      "date": "07/23/2026",
+      "type": "mod",
+      "text": "Zmieniono procedurę „Koncesje przedsiębiorstw — specjalistyczne (broń palna i strzelnice)\" w Office of the Attorney General"
+    },
     {
       "date": "07/23/2026",
       "type": "mod",
