@@ -51,7 +51,7 @@
         "Wystawienie dokumentu koncesji w sprawie założonej w punkcie 2 (Dokument urzędowy → Potwierdzenie wydania koncesji)",
         "Pobranie opłaty bądź poinformowanie o konieczności wykonania przelewu"
       ],
-      "notes": "Zwolnienie z koncesji: każde przedsiębiorstwo prowadzące działalność koncesjonowaną zwolnione jest z opłat koncesyjnych na pierwszy miesiąc działalności.\n\nAkty prawne:\n• BFRT 165–173 — produkcja, dystrybucja i sprzedaż wyrobów tytoniowych i nikotynowych\n• BFRT 180–188 — produkcja, dystrybucja i sprzedaż wyrobów alkoholowych\n• BFRT 195–207 — produkcja, dystrybucja i sprzedaż marihuany\n\nKoncesje specjalistyczne: broń palna i strzelnice — patrz Office of the Attorney General; hazard i loterie — patrz Internal Revenue Services."
+      "notes": "Zwolnienie z koncesji: każde przedsiębiorstwo prowadzące działalność koncesjonowaną zwolnione jest z opłat koncesyjnych na pierwszy miesiąc działalności.\n\nAkty prawne:\n• BFRT 165–173 — produkcja, dystrybucja i sprzedaż wyrobów tytoniowych i nikotynowych (dla koncesji do dystrybucji i sprzedaży - $2.000 \ndla koncesji do produkcji - $15.000)\n• BFRT 180–188 — produkcja, dystrybucja i sprzedaż wyrobów alkoholowych (dla koncesji do dystrybucji i sprzedaży piw, win i szampanów - $4.000 \ndla koncesji do dystrybucji i sprzedaży alkoholi wysokoprocentowych - $6.000 \ndla koncesji do produkcji piw, win i szampanów - $21.000\ndla koncesji do produkcji alkoholi wysokoprocentowych - $30.000)\n• BFRT 195–207 — produkcja, dystrybucja i sprzedaż marihuany (dla koncesji do dystrybucji i sprzedaży - $7.000 \ndla koncesji do produkcji - $21.000)\n\nKoncesje specjalistyczne: broń palna i strzelnice — patrz Office of the Attorney General; hazard i loterie — patrz Internal Revenue Services."
     },
     {
       "id": "go-5",
@@ -602,6 +602,11 @@
     }
   ],
   "log": [
+    {
+      "date": "07/23/2026",
+      "type": "mod",
+      "text": "Zmieniono procedurę „Koncesje przedsiębiorstw — podstawowe\" w Governor's Office"
+    },
     {
       "date": "07/23/2026",
       "type": "mod",
