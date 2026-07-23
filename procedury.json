@@ -486,7 +486,7 @@
         "Stworzenie sprawy w statecapitol.app i wrzucenie wniosku jako dokument zewnętrzny (https://statecapitol.app/dashboard/irs/cases)",
         "Dodanie koncesji w rejestrze koncesji w statecapitol.app (https://statecapitol.app/dashboard/go/registry/franchise)",
         "Wystawienie dokumentu koncesji w sprawie założonej w punkcie 2 (Dokument urzędowy → Potwierdzenie wydania koncesji)",
-        "Pobranie opłaty bądź poinformowanie o konieczności wykonania przelewu"
+        "Pobranie opłaty bądź poinformowanie o konieczności wykonania przelewu (Ustanowiony koszt wydania koncesji wynosi $85.000)"
       ],
       "notes": "Akty prawne:\n• BFRT 245–249 — hazard i gry losowe\n• BFRT 255–257 — loterie"
     },
@@ -602,6 +602,11 @@
     }
   ],
   "log": [
+    {
+      "date": "07/23/2026",
+      "type": "mod",
+      "text": "Zmieniono procedurę „Koncesje przedsiębiorstw — specjalistyczne (hazard i loterie)\" w Internal Revenue Services"
+    },
     {
       "date": "07/23/2026",
       "type": "mod",
