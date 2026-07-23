@@ -46,13 +46,14 @@
     display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
   }
   .brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
-  .seal{
-    width:46px;height:46px;border-radius:50%;
-    border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
-    font-family:'Spectral',serif;font-weight:700;font-size:15px;color:var(--gold);
-    margin-bottom:12px;letter-spacing:.5px;
-    background:radial-gradient(circle at 35% 30%, rgba(184,145,47,.25), transparent 60%);
+  .brand-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .seal-img{
+    width:54px;height:54px;object-fit:contain;flex-shrink:0;
+    filter:drop-shadow(0 0 10px rgba(184,145,47,.4));
+    animation:sealFloat 5s ease-in-out infinite;
   }
+  @keyframes sealFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  .intouch-logo{height:24px;max-width:150px;object-fit:contain;opacity:.92}
   .brand h1{font-family:'Spectral',serif;font-size:19px;font-weight:600;line-height:1.25}
   .brand .sub{font-size:11.5px;color:#9fb0c9;text-transform:uppercase;letter-spacing:.14em;margin-top:4px}
 
@@ -227,6 +228,16 @@
     animation:starIn .7s .9s cubic-bezier(.2,1.4,.4,1) forwards;
     filter:drop-shadow(0 0 8px rgba(184,145,47,.6));
   }
+  .splash-seal-img{
+    position:absolute;inset:16px;width:88px;height:88px;object-fit:contain;
+    opacity:0;transform:scale(.4);transform-origin:center;
+    animation:starIn .7s .8s cubic-bezier(.2,1.4,.4,1) forwards;
+    filter:drop-shadow(0 0 14px rgba(184,145,47,.55));
+  }
+  .splash-intouch{
+    height:22px;object-fit:contain;opacity:0;
+    animation:fadeUp .8s 1.1s ease forwards;
+  }
   @keyframes drawRing{to{stroke-dashoffset:0}}
   @keyframes spinSlow{to{transform:rotate(360deg)}}
   @keyframes starIn{to{opacity:1;transform:scale(1)}}
@@ -286,14 +297,6 @@
   }
   @keyframes lineIn{to{transform:scaleX(1)}}
 
-  .seal{
-    position:relative;overflow:hidden;
-  }
-  .seal::after{
-    content:'';position:absolute;inset:-30%;
-    background:conic-gradient(from 0deg, transparent 0 70%, rgba(255,255,255,.25) 78%, transparent 86%);
-    animation:spinSlow 6s linear infinite;
-  }
   .nav-item{transition:background .15s, color .15s, padding-left .15s}
   .nav-item:hover{padding-left:14px}
   .log-item{opacity:0;animation:cardIn .4s ease both;animation-delay:var(--d,0s)}
@@ -353,19 +356,23 @@
     <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <circle class="seal-ring2" cx="60" cy="60" r="57"/>
       <circle class="seal-ring" cx="60" cy="60" r="54" transform="rotate(-90 60 60)"/>
-      <path class="seal-star" d="M60 34 L66.2 51.3 L84.5 51.8 L70 63 L75.2 80.6 L60 70.2 L44.8 80.6 L50 63 L35.5 51.8 L53.8 51.3 Z"/>
     </svg>
+    <img class="splash-seal-img" src="https://statecapitol.app/build/assets/great_seal-Daa0xzsN.png" alt="">
   </div>
   <div>
     <div class="splash-title">State Capitol</div>
     <div class="splash-sub">San Andreas · Rejestr Procedur</div>
   </div>
   <div class="splash-bar"><i></i></div>
+  <img class="splash-intouch" src="https://cdn-website.realmgaming.eu/intouch-svg-long.svg" alt="InTouch">
 </div>
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="seal">SA</div>
+      <div class="brand-row">
+        <img class="seal-img" src="https://statecapitol.app/build/assets/great_seal-Daa0xzsN.png" alt="Great Seal — State Capitol">
+        <img class="intouch-logo" src="https://cdn-website.realmgaming.eu/intouch-svg-long.svg" alt="InTouch">
+      </div>
       <h1>Rejestr Procedur</h1>
       <div class="sub">State Capitol · San Andreas</div>
     </div>
