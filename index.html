@@ -201,6 +201,31 @@
   }
   :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
+  /* ── tryb ciemny ───────────────────────── */
+  html[data-theme="dark"]{
+    --paper:#10161f; --card:#1a2230; --ink:#e7ecf4; --muted:#93a2b8; --line:#2b3648;
+    --gold-soft:#2b2312; --civic-soft:#132a1e; --legal-soft:#2e191c;
+  }
+  html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
+  html[data-theme="dark"] .proc-body{background:#151c28}
+  html[data-theme="dark"] .notes-block{background:#141b26;color:#c6d0de;border-color:#2b3648}
+  html[data-theme="dark"] ol.steps li{border-bottom-color:#26303f}
+  html[data-theme="dark"] .btn-ghost{background:#1a2230;color:var(--ink);border-color:#2b3648}
+  html[data-theme="dark"] .btn-ghost:hover{border-color:#4a5a75}
+  html[data-theme="dark"] .btn-danger{background:#1a2230;border-color:#5a2f33;color:#e08b8b}
+  html[data-theme="dark"] .btn-danger:hover{background:#26191b}
+  html[data-theme="dark"] .modal{background:#1a2230}
+  html[data-theme="dark"] .field input,
+  html[data-theme="dark"] .field select,
+  html[data-theme="dark"] .field textarea{background:#10161f;color:var(--ink);border-color:#2b3648}
+  html[data-theme="dark"] .dept-note{background:#241f10;border-color:#4a3d1a;color:#d8c07a}
+  html[data-theme="dark"] .proc-num{background:#241f10;border-color:#4a3d1a;color:#d8b45a}
+  html[data-theme="dark"] .log-tag.mod{color:#d8b45a}
+  html[data-theme="dark"] .log-tag.add{color:#6fca9b}
+  html[data-theme="dark"] .log-tag.del{color:#e08b8b}
+  html[data-theme="dark"] .proc-card:hover{border-color:#3b4a63}
+  html[data-theme="dark"] .empty{border-color:#2b3648}
+
   /* toast */
   .toast{
     position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
@@ -235,6 +260,7 @@
         <h2 id="view-title"></h2>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="btn-theme" title="Przełącz tryb jasny/ciemny">🌙</button>
         <button class="btn btn-ghost" id="btn-refresh" title="Pobierz najnowszą wersję rejestru">⟳ Odśwież</button>
         <button class="btn btn-gold" id="btn-add">＋ Dodaj procedurę</button>
       </div>
@@ -619,6 +645,25 @@ function toast(msg, type){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>t.classList.remove('show'), 4000);
 }
+
+/* ══════════════ TRYB CIEMNY ══════════════ */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const b = $('btn-theme');
+  if(b) b.textContent = t==='dark' ? '☀️' : '🌙';
+}
+function initTheme(){
+  let t = null;
+  try{ t = localStorage.getItem('sc-theme'); }catch(e){}
+  if(!t) t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  applyTheme(t);
+}
+$('btn-theme').onclick = ()=>{
+  const t = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+  applyTheme(t);
+  try{ localStorage.setItem('sc-theme', t); }catch(e){}
+};
+initTheme();
 
 $('btn-refresh').onclick = async ()=>{
   $('btn-refresh').textContent = '⟳ Pobieranie…';
