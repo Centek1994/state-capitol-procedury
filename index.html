@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rejestr Procedur — State Capitol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14233c;
+    --navy-2:#1d3153;
+    --navy-3:#25406b;
+    --paper:#f1f3f6;
+    --card:#ffffff;
+    --ink:#1c2431;
+    --muted:#5c6b82;
+    --line:#d8dee8;
+    --gold:#b8912f;
+    --gold-soft:#f3ead2;
+    --civic:#1f6f4a;
+    --civic-soft:#e2f0e9;
+    --legal:#7a2830;
+    --legal-soft:#f3e3e4;
+    --danger:#a33333;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.55;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;font-size:14px}
+
+  .app{display:flex;min-height:100vh}
+
+  /* ── Sidebar ───────────────────────────── */
+  .sidebar{
+    width:300px;flex-shrink:0;background:var(--navy);color:#e8ecf4;
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .seal{
+    width:46px;height:46px;border-radius:50%;
+    border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+    font-family:'Spectral',serif;font-weight:700;font-size:15px;color:var(--gold);
+    margin-bottom:12px;letter-spacing:.5px;
+    background:radial-gradient(circle at 35% 30%, rgba(184,145,47,.25), transparent 60%);
+  }
+  .brand h1{font-family:'Spectral',serif;font-size:19px;font-weight:600;line-height:1.25}
+  .brand .sub{font-size:11.5px;color:#9fb0c9;text-transform:uppercase;letter-spacing:.14em;margin-top:4px}
+
+  .search-wrap{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .search-wrap input{
+    width:100%;padding:9px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.07);color:#fff;outline:none;
+  }
+  .search-wrap input::placeholder{color:#8fa0ba}
+  .search-wrap input:focus{border-color:var(--gold)}
+
+  nav{flex:1;padding:12px 10px 20px}
+  .nav-group{margin-bottom:14px}
+  .nav-group-label{
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.16em;color:#8fa0ba;
+    padding:8px 10px 6px;display:flex;align-items:center;gap:8px;
+  }
+  .nav-group-label .dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+  .dot.civic{background:#4ea87e}.dot.legal{background:#c46b73}
+  .nav-item{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    width:100%;text-align:left;background:none;border:none;color:#dbe3ef;
+    padding:8px 10px;border-radius:7px;font-size:13.5px;
+  }
+  .nav-item:hover{background:rgba(255,255,255,.08)}
+  .nav-item.active{background:rgba(184,145,47,.18);color:#fff}
+  .nav-item .count{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:#93a4bd;
+    background:rgba(255,255,255,.08);border-radius:10px;padding:1px 8px;
+  }
+  .nav-item.active .count{color:var(--gold);background:rgba(184,145,47,.15)}
+  .nav-sep{height:1px;background:rgba(255,255,255,.12);margin:6px 10px 12px}
+
+  .sidebar-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.12);font-size:11.5px;color:#8fa0ba}
+
+  /* ── Main ─────────────────────────────── */
+  main{flex:1;min-width:0;padding:28px 34px 60px;max-width:1060px}
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .topbar h2{font-family:'Spectral',serif;font-size:26px;font-weight:600}
+  .topbar .crumb{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px}
+  .btn{
+    border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13.5px;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn-gold{background:var(--gold);color:#fff}
+  .btn-gold:hover{background:#a37f26}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--navy-3)}
+  .btn-danger{background:#fff;border:1px solid #e0b9b9;color:var(--danger)}
+  .btn-danger:hover{background:#fbf0f0}
+  .btn-sm{padding:6px 11px;font-size:12.5px}
+
+  .dept-note{
+    background:var(--gold-soft);border:1px solid #e4d4a8;border-radius:var(--radius);
+    padding:12px 16px;font-size:13.5px;margin-bottom:20px;color:#5c4a17;
+  }
+
+  /* procedure cards */
+  .proc-list{display:flex;flex-direction:column;gap:10px}
+  .proc-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:0;overflow:hidden;transition:border-color .12s;
+  }
+  .proc-card:hover{border-color:#b7c2d4}
+  .proc-head{
+    display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer;background:none;border:none;width:100%;text-align:left;
+  }
+  .proc-num{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);
+    border:1px solid #e0d3ac;background:var(--gold-soft);border-radius:6px;
+    padding:3px 8px;flex-shrink:0;font-weight:500;
+  }
+  .proc-title{font-family:'Spectral',serif;font-size:16.5px;font-weight:600;flex:1;min-width:0}
+  .proc-meta-mini{font-size:12px;color:var(--muted);flex-shrink:0;display:flex;gap:10px;align-items:center}
+  .chev{transition:transform .15s;color:var(--muted);flex-shrink:0}
+  .proc-card.open .chev{transform:rotate(90deg)}
+  .proc-body{display:none;border-top:1px solid var(--line);padding:18px 20px 20px;background:#fbfcfe}
+  .proc-card.open .proc-body{display:block}
+
+  .meta-grid{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:16px}
+  .meta-grid .m{font-size:13px}
+  .meta-grid .m b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;margin-bottom:2px}
+
+  ol.steps{margin:0 0 4px 0;padding-left:0;list-style:none;counter-reset:step}
+  ol.steps li{
+    counter-increment:step;display:flex;gap:12px;padding:7px 0;font-size:14px;
+    border-bottom:1px dashed #e3e8f0;
+  }
+  ol.steps li:last-child{border-bottom:none}
+  ol.steps li::before{
+    content:counter(step);flex-shrink:0;width:24px;height:24px;border-radius:50%;
+    background:var(--navy);color:#fff;font-size:11.5px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;margin-top:1px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .notes-block{
+    margin-top:14px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:7px;padding:12px 16px;font-size:13.5px;white-space:pre-wrap;color:#37414f;
+  }
+  .notes-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;margin:14px 0 4px}
+  .proc-actions{display:flex;gap:8px;margin-top:16px}
+
+  .empty{
+    text-align:center;padding:60px 20px;color:var(--muted);background:var(--card);
+    border:1px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .big{font-family:'Spectral',serif;font-size:18px;color:var(--ink);margin-bottom:6px}
+
+  /* changelog */
+  .log-list{display:flex;flex-direction:column;gap:6px}
+  .log-item{
+    background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:10px 14px;display:flex;gap:12px;align-items:baseline;font-size:13.5px;
+  }
+  .log-tag{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;flex-shrink:0;border-radius:5px;padding:1px 7px}
+  .log-tag.add{background:var(--civic-soft);color:var(--civic)}
+  .log-tag.mod{background:var(--gold-soft);color:#8a6a1c}
+  .log-tag.del{background:var(--legal-soft);color:var(--legal)}
+  .log-date{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);flex-shrink:0}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(16,24,40,.55);display:none;
+    align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:50;
+  }
+  .overlay.show{display:flex}
+  .modal{
+    background:#fff;border-radius:14px;width:100%;max-width:640px;
+    padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+  .modal h3{font-family:'Spectral',serif;font-size:21px;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
+  .field input,.field select,.field textarea{
+    width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:7px;outline:none;background:#fff;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+  .field textarea{resize:vertical;min-height:90px;line-height:1.5}
+  .field .hint{font-size:11.5px;color:var(--muted);margin-top:4px}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+  @media (max-width:840px){
+    .app{flex-direction:column}
+    .sidebar{width:100%;height:auto;position:static}
+    main{padding:20px 16px 50px}
+  }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* toast */
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--navy);color:#fff;padding:11px 18px;border-radius:9px;
+    font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:100;
+    transition:transform .25s ease;max-width:90vw;text-align:center;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--danger)}
+  .toast.ok{background:var(--civic)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="seal">SA</div>
+      <h1>Rejestr Procedur</h1>
+      <div class="sub">State Capitol · San Andreas</div>
+    </div>
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="Szukaj procedury…" autocomplete="off">
+    </div>
+    <nav id="nav"></nav>
+    <div class="sidebar-foot">Wspólna baza procedur State Capitol · edycja przez GitHub</div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <div class="crumb" id="crumb"></div>
+        <h2 id="view-title"></h2>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="btn-refresh" title="Pobierz najnowszą wersję rejestru">⟳ Odśwież</button>
+        <button class="btn btn-gold" id="btn-add">＋ Dodaj procedurę</button>
+      </div>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<!-- modal: dodawanie / edycja -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modal-title">Dodaj procedurę</h3>
+    <div class="field">
+      <label for="f-title">Nazwa procedury</label>
+      <input id="f-title" type="text" placeholder="np. Wydanie dokumentu tożsamości">
+    </div>
+    <div class="field">
+      <label for="f-dept">Dział zarządzający</label>
+      <select id="f-dept"></select>
+    </div>
+    <div class="field">
+      <label for="f-exec">Działy wykonujące</label>
+      <input id="f-exec" type="text" placeholder="np. wszystkie działy State Capitol">
+    </div>
+    <div class="field">
+      <label for="f-steps">Kroki procedury</label>
+      <textarea id="f-steps" placeholder="Jeden krok w każdej linii&#10;1. Weryfikacja tożsamości (DL)&#10;2. Utworzenie sprawy…"></textarea>
+      <div class="hint">Każda linia = jeden krok. Numeracja doda się automatycznie.</div>
+    </div>
+    <div class="field">
+      <label for="f-notes">Uwagi / przepisy dodatkowe (opcjonalne)</label>
+      <textarea id="f-notes" placeholder="Opłaty, akty prawne, zakres kontroli, wyjątki…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btn-cancel">Anuluj</button>
+      <button class="btn btn-gold" id="btn-save">Dalej → wyślij na GitHub</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal: potwierdzenie usunięcia -->
+<div class="overlay" id="del-overlay">
+  <div class="modal" style="max-width:420px">
+    <h3>Usunąć procedurę?</h3>
+    <p style="font-size:14px;margin-bottom:6px" id="del-name"></p>
+    <p style="font-size:13px;color:var(--muted)">Usunięcie zostanie zastosowane po zapisaniu pliku na GitHubie.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="del-cancel">Anuluj</button>
+      <button class="btn btn-danger" id="del-ok">Usuń</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal: publikacja na GitHub -->
+<div class="overlay" id="gh-overlay">
+  <div class="modal" style="max-width:680px">
+    <h3>Zapisz zmiany na GitHubie</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin-bottom:14px">
+      Poniżej jest gotowa, zaktualizowana treść pliku <b>procedury.json</b>.
+      Skopiuj ją, otwórz plik na GitHubie, <b>zaznacz całą starą treść i wklej nową</b>, po czym kliknij <b>Commit changes</b>.
+      Zmiany pojawią się u wszystkich po ok. 1 minucie (po przebudowie strony).
+    </p>
+    <div class="field">
+      <label>Nowa treść pliku procedury.json</label>
+      <textarea id="gh-json" style="min-height:200px;font-family:'IBM Plex Mono',monospace;font-size:12px" readonly></textarea>
+    </div>
+    <div class="modal-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <button class="btn btn-ghost" id="gh-close">Zamknij</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="gh-copy">📋 Kopiuj JSON</button>
+        <button class="btn btn-gold" id="gh-open">Otwórz plik na GitHubie ↗</button>
+      </div>
+    </div>
+    <p id="gh-hint" style="font-size:12px;color:var(--danger);margin-top:10px;display:none">
+      Skonfiguruj adres repozytorium: otwórz index.html i uzupełnij stałą GITHUB_REPO na górze skryptu (np. "twoj-login/state-capitol").
+    </p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═════════════════════════════════════════════
+   KONFIGURACJA — uzupełnij po wrzuceniu na GitHub
+   Format: "login/nazwa-repozytorium", np. "janek/state-capitol"
+   ═════════════════════════════════════════════ */
+const GITHUB_REPO = "";
+const GITHUB_BRANCH = "main";
+const DATA_FILE = "procedury.json";
+
+/* ══════════════ DZIAŁY ══════════════ */
+const DEPTS = [
+  {id:'go',   name:"Governor's Office", type:'civic'},
+  {id:'dmv',  name:'Department of Motor Vehicles', type:'civic'},
+  {id:'irs',  name:'Internal Revenue Services', type:'civic'},
+  {id:'hhs',  name:'Health and Human Services', type:'civic'},
+  {id:'oag',  name:'Office of the Attorney General', type:'legal'},
+  {id:'irsci',name:'IRS Criminal Investigation', type:'legal'},
+  {id:'mec',  name:'Dept. of Medical Examiner-Coroner', type:'legal'},
+  {id:'sb',   name:'State Bar', type:'legal'},
+  {id:'sup',  name:'Supreme Court', type:'legal'},
+];
+const DEPT_NOTES = {
+  civic:"Każdy pracownik State Capitolu (również z działów prawno-śledczych) zobowiązany jest do wykonywania wszystkich zadań związanych z działami obywatelskimi.",
+};
+
+/* ══════════════ STAN ══════════════ */
+let state = {procedures:[], log:[]};
+let currentView = {type:'dept', dept:'go'};
+let searchQ = '';
+let loadError = false;
+
+async function loadState(){
+  try{
+    const res = await fetch(DATA_FILE + '?ts=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    state = await res.json();
+    if(!Array.isArray(state.procedures)) state.procedures = [];
+    if(!Array.isArray(state.log)) state.log = [];
+    loadError = false;
+  }catch(e){
+    console.error('Nie udało się wczytać procedury.json', e);
+    loadError = true;
+  }
+}
+function addLog(type,text){
+  const d = new Date();
+  const date = String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+d.getFullYear();
+  state.log.unshift({date,type,text});
+}
+
+/* ══════════════ RENDER ══════════════ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const deptName = id => (DEPTS.find(d=>d.id===id)||{}).name || id;
+
+function renderNav(){
+  const counts = {};
+  state.procedures.forEach(p=>counts[p.dept]=(counts[p.dept]||0)+1);
+  let html = '';
+  const groups = [['civic','Działy obywatelskie'],['legal','Działy prawno-śledcze']];
+  groups.forEach(([type,label])=>{
+    html += `<div class="nav-group"><div class="nav-group-label"><span class="dot ${type}"></span>${label}</div>`;
+    DEPTS.filter(d=>d.type===type).forEach(d=>{
+      const active = currentView.type==='dept' && currentView.dept===d.id && !searchQ;
+      html += `<button class="nav-item ${active?'active':''}" data-dept="${d.id}">
+        <span>${esc(d.name)}</span><span class="count">${counts[d.id]||0}</span></button>`;
+    });
+    html += `</div>`;
+  });
+  html += `<div class="nav-sep"></div>
+    <button class="nav-item ${currentView.type==='log'?'active':''}" data-view="log">
+      <span>Aktualizacje</span><span class="count">${state.log.length}</span></button>
+    <button class="nav-item ${currentView.type==='org'?'active':''}" data-view="org"><span>Struktura urzędu</span></button>`;
+  $('nav').innerHTML = html;
+  $('nav').querySelectorAll('[data-dept]').forEach(b=>b.onclick=()=>{
+    searchQ=''; $('search').value=''; currentView={type:'dept',dept:b.dataset.dept}; render();
+  });
+  $('nav').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
+    searchQ=''; $('search').value=''; currentView={type:b.dataset.view}; render();
+  });
+}
+
+function procCard(p, idx, showDept){
+  return `<div class="proc-card" data-id="${esc(p.id)}">
+    <button class="proc-head">
+      <span class="proc-num">§ ${idx+1}</span>
+      <span class="proc-title">${esc(p.title)}</span>
+      <span class="proc-meta-mini">${showDept?esc(deptName(p.dept)):''}</span>
+      <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <div class="proc-body">
+      <div class="meta-grid">
+        <div class="m"><b>Dział zarządzający</b>${esc(deptName(p.dept))}</div>
+        <div class="m"><b>Działy wykonujące</b>${esc(p.exec||'—')}</div>
+      </div>
+      ${p.steps && p.steps.length ? `<div class="notes-label">Procedura</div><ol class="steps">${p.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>` : ''}
+      ${p.notes ? `<div class="notes-label">Uwagi i przepisy</div><div class="notes-block">${esc(p.notes)}</div>` : ''}
+      ${(!p.steps||!p.steps.length) && !p.notes ? `<div style="color:var(--muted);font-size:13.5px">Brak opisanych kroków — procedura do uzupełnienia.</div>`:''}
+      <div class="proc-actions">
+        <button class="btn btn-ghost btn-sm" data-edit="${esc(p.id)}">Edytuj</button>
+        <button class="btn btn-danger btn-sm" data-del="${esc(p.id)}">Usuń</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  renderNav();
+  const c = $('content');
+  $('btn-add').style.display = (currentView.type==='log'||currentView.type==='org') ? 'none':'inline-flex';
+
+  if(loadError){
+    $('crumb').textContent = 'Błąd';
+    $('view-title').textContent = 'Nie udało się wczytać rejestru';
+    c.innerHTML = `<div class="empty"><div class="big">Brak pliku procedury.json</div>
+      Upewnij się, że plik <b>procedury.json</b> leży w tym samym folderze co index.html w repozytorium,<br>a strona jest otwarta przez GitHub Pages (nie jako plik lokalny).</div>`;
+    return;
+  }
+
+  if(searchQ){
+    const q = searchQ.toLowerCase();
+    const found = state.procedures.filter(p =>
+      p.title.toLowerCase().includes(q) ||
+      (p.notes||'').toLowerCase().includes(q) ||
+      (p.steps||[]).some(s=>s.toLowerCase().includes(q)) ||
+      deptName(p.dept).toLowerCase().includes(q));
+    $('crumb').textContent = 'Wyszukiwanie';
+    $('view-title').textContent = `Wyniki: „${searchQ}"`;
+    c.innerHTML = found.length
+      ? `<div class="proc-list">${found.map((p,i)=>procCard(p,i,true)).join('')}</div>`
+      : `<div class="empty"><div class="big">Brak wyników</div>Nie znaleziono procedur pasujących do zapytania.</div>`;
+    bindCards(); return;
+  }
+
+  if(currentView.type==='log'){
+    $('crumb').textContent = 'Rejestr zmian';
+    $('view-title').textContent = 'Aktualizacje';
+    const tag = t => t==='add'?'<span class="log-tag add">[ + ]</span>':t==='del'?'<span class="log-tag del">[ − ]</span>':'<span class="log-tag mod">[ ! ]</span>';
+    c.innerHTML = state.log.length
+      ? `<div class="log-list">${state.log.map(l=>`<div class="log-item">${tag(l.type)}<span class="log-date">${esc(l.date)}</span><span>${esc(l.text)}</span></div>`).join('')}</div>`
+      : `<div class="empty"><div class="big">Brak wpisów</div>Zmiany w procedurach pojawią się tutaj automatycznie.</div>`;
+    return;
+  }
+
+  if(currentView.type==='org'){
+    $('crumb').textContent = 'State Capitol';
+    $('view-title').textContent = 'Struktura urzędu';
+    c.innerHTML = `
+    <div class="proc-list">
+      <div class="proc-card open"><div class="proc-body" style="border-top:none">
+        <p style="margin-bottom:14px">State Capitol podzielony jest na <b>dział obywatelski</b> oraz <b>prawno-śledczy</b>. Każdy pracownik State Capitolu (również z działów prawno-śledczych) zobowiązany jest do wykonywania wszystkich zadań związanych z działami obywatelskimi.</p>
+        <div class="notes-label">Osoby odpowiedzialne — działy obywatelskie</div>
+        <div class="notes-block">Director oraz Deputy Director konkretnego działu.</div>
+        <div class="notes-label">Osoby odpowiedzialne — działy prawno-śledcze</div>
+        <div class="notes-block">• Attorney General oraz Chief Deputy Attorney General — Office of the Attorney General
+• Director (IRS) oraz Deputy Director (IRS) — IRS Criminal Investigation
+• President oraz Secretary — State Bar
+• Chief Justice — Supreme Court</div>
+      </div></div>
+    </div>`;
+    return;
+  }
+
+  const dept = DEPTS.find(d=>d.id===currentView.dept);
+  const list = state.procedures.filter(p=>p.dept===dept.id);
+  $('crumb').textContent = dept.type==='civic' ? 'Dział obywatelski' : 'Dział prawno-śledczy';
+  $('view-title').textContent = dept.name;
+  let html = '';
+  if(dept.type==='civic') html += `<div class="dept-note">${DEPT_NOTES.civic}</div>`;
+  html += list.length
+    ? `<div class="proc-list">${list.map((p,i)=>procCard(p,i,false)).join('')}</div>`
+    : `<div class="empty"><div class="big">Brak procedur</div>Ten dział nie ma jeszcze opisanych procedur. Dodaj pierwszą przyciskiem „Dodaj procedurę".</div>`;
+  c.innerHTML = html;
+  bindCards();
+}
+
+function bindCards(){
+  document.querySelectorAll('.proc-head').forEach(h=>h.onclick=()=>h.closest('.proc-card').classList.toggle('open'));
+  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    openModal(b.dataset.edit);
+  });
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const p = state.procedures.find(x=>x.id===b.dataset.del);
+    if(!p) return;
+    pendingDelete = p.id;
+    $('del-name').textContent = '„'+p.title+'"';
+    $('del-overlay').classList.add('show');
+  });
+}
+
+/* ══════════════ MODAL: FORMULARZ ══════════════ */
+let editingId = null;
+function openModal(id){
+  editingId = id || null;
+  const sel = $('f-dept');
+  sel.innerHTML = DEPTS.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  if(id){
+    const p = state.procedures.find(x=>x.id===id);
+    $('modal-title').textContent = 'Edytuj procedurę';
+    $('f-title').value = p.title;
+    sel.value = p.dept;
+    $('f-exec').value = p.exec||'';
+    $('f-steps').value = (p.steps||[]).join('\n');
+    $('f-notes').value = p.notes||'';
+  } else {
+    $('modal-title').textContent = 'Dodaj procedurę';
+    $('f-title').value = '';
+    sel.value = currentView.type==='dept' ? currentView.dept : 'go';
+    $('f-exec').value = 'wszystkie działy State Capitol';
+    $('f-steps').value = '';
+    $('f-notes').value = '';
+  }
+  $('overlay').classList.add('show');
+  $('f-title').focus();
+}
+function closeModal(){ $('overlay').classList.remove('show'); editingId=null; }
+
+$('btn-add').onclick = ()=>openModal(null);
+$('btn-cancel').onclick = closeModal;
+$('overlay').onclick = e => { if(e.target===$('overlay')) closeModal(); };
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    closeModal();
+    $('del-overlay').classList.remove('show');
+    $('gh-overlay').classList.remove('show');
+  }
+});
+
+$('btn-save').onclick = ()=>{
+  const title = $('f-title').value.trim();
+  if(!title){ $('f-title').focus(); return; }
+  const steps = $('f-steps').value.split('\n').map(s=>s.replace(/^\s*\d+[\.\)]\s*/,'').trim()).filter(Boolean);
+  const data = {
+    title, dept: $('f-dept').value,
+    exec: $('f-exec').value.trim(),
+    steps, notes: $('f-notes').value.trim()
+  };
+  if(editingId){
+    const p = state.procedures.find(x=>x.id===editingId);
+    if(p){ Object.assign(p, data); }
+    addLog('mod',`Zmieniono procedurę „${title}" w ${deptName(data.dept)}`);
+  } else {
+    data.id = 'u-'+Date.now();
+    state.procedures.push(data);
+    addLog('add',`Dodano procedurę „${title}" w ${deptName(data.dept)}`);
+    currentView = {type:'dept', dept:data.dept};
+  }
+  closeModal(); render();
+  openGhModal();
+};
+
+/* ══════════════ MODAL: USUWANIE ══════════════ */
+let pendingDelete = null;
+$('del-cancel').onclick = ()=>{ pendingDelete=null; $('del-overlay').classList.remove('show'); };
+$('del-overlay').onclick = e => { if(e.target===$('del-overlay')){ pendingDelete=null; $('del-overlay').classList.remove('show'); } };
+$('del-ok').onclick = ()=>{
+  const p = state.procedures.find(x=>x.id===pendingDelete);
+  $('del-overlay').classList.remove('show');
+  pendingDelete = null;
+  if(!p) return;
+  state.procedures = state.procedures.filter(x=>x.id!==p.id);
+  addLog('del',`Usunięto procedurę „${p.title}" w ${deptName(p.dept)}`);
+  render();
+  openGhModal();
+};
+
+/* ══════════════ MODAL: GITHUB ══════════════ */
+function ghEditUrl(){
+  if(!GITHUB_REPO) return null;
+  return `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/${DATA_FILE}`;
+}
+function openGhModal(){
+  $('gh-json').value = JSON.stringify(state, null, 2);
+  $('gh-hint').style.display = GITHUB_REPO ? 'none' : 'block';
+  $('gh-overlay').classList.add('show');
+}
+$('gh-close').onclick = ()=>$('gh-overlay').classList.remove('show');
+$('gh-overlay').onclick = e => { if(e.target===$('gh-overlay')) $('gh-overlay').classList.remove('show'); };
+$('gh-copy').onclick = async ()=>{
+  const ta = $('gh-json');
+  ta.select(); ta.setSelectionRange(0, 99999999);
+  let ok = false;
+  try{ await navigator.clipboard.writeText(ta.value); ok = true; }
+  catch(e){ try{ ok = document.execCommand('copy'); }catch(e2){} }
+  toast(ok ? 'Skopiowano JSON do schowka ✓' : 'Nie udało się skopiować — zaznacz i skopiuj ręcznie (Ctrl+C)', ok?'ok':'err');
+};
+$('gh-open').onclick = ()=>{
+  const url = ghEditUrl();
+  if(url) window.open(url, '_blank');
+  else $('gh-hint').style.display = 'block';
+};
+
+/* ══════════════ POZOSTAŁE ══════════════ */
+let toastTimer = null;
+function toast(msg, type){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type||'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 4000);
+}
+
+$('btn-refresh').onclick = async ()=>{
+  $('btn-refresh').textContent = '⟳ Pobieranie…';
+  await loadState(); render();
+  $('btn-refresh').textContent = '⟳ Odśwież';
+  if(!loadError) toast('Rejestr zaktualizowany ✓','ok');
+};
+
+$('search').addEventListener('input', e=>{ searchQ = e.target.value.trim(); render(); });
+
+/* start */
+loadState().then(render);
+</script>
+</body>
+</html>
