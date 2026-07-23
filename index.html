@@ -438,6 +438,7 @@
         <h2 id="view-title"></h2>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="btn-lock" title="Tryb edycji">🔒</button>
         <button class="btn btn-ghost" id="btn-theme" title="Przełącz tryb jasny/ciemny">🌙</button>
         <button class="btn btn-ghost" id="btn-refresh" title="Pobierz najnowszą wersję rejestru">⟳ Odśwież</button>
         <button class="btn btn-gold" id="btn-add">＋ Dodaj procedurę</button>
@@ -515,6 +516,23 @@
     <p id="gh-hint" style="font-size:12px;color:var(--danger);margin-top:10px;display:none">
       Skonfiguruj adres repozytorium: otwórz index.html i uzupełnij stałą GITHUB_REPO na górze skryptu.
     </p>
+  </div>
+</div>
+
+<!-- modal: hasło trybu edycji -->
+<div class="overlay" id="pass-overlay">
+  <div class="modal" style="max-width:400px">
+    <h3>Tryb edycji</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin-bottom:14px">Dodawanie, edycja i usuwanie procedur wymaga autoryzacji.</p>
+    <div class="field">
+      <label for="f-pass">Hasło</label>
+      <input id="f-pass" type="password" placeholder="Wpisz hasło…" autocomplete="off">
+      <div class="hint" id="pass-err" style="color:var(--danger);display:none">Nieprawidłowe hasło. Spróbuj ponownie.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="pass-cancel">Anuluj</button>
+      <button class="btn btn-gold" id="pass-ok">Odblokuj</button>
+    </div>
   </div>
 </div>
 
@@ -606,6 +624,25 @@ let favs = new Set();
 try{ favs = new Set(JSON.parse(localStorage.getItem('sc-favs')||'[]')); }catch(e){}
 function saveFavs(){ try{ localStorage.setItem('sc-favs', JSON.stringify([...favs])); }catch(e){} }
 
+/* ══════════════ TRYB EDYCJI (hasło) ══════════════ */
+const EDIT_HASH = '8402860947e2986a67bc7b8c6fbd68760688f778f2f4c366c9bcd8dba903c590';
+let editMode = false;
+async function sha256(s){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function updateLockBtn(){
+  const b = $('btn-lock');
+  b.textContent = editMode ? '🔓' : '🔒';
+  b.title = editMode ? 'Tryb edycji włączony — kliknij, aby zablokować' : 'Odblokuj tryb edycji';
+}
+async function initEditMode(){
+  try{
+    if(localStorage.getItem('sc-edithash') === EDIT_HASH) editMode = true;
+  }catch(e){}
+  updateLockBtn();
+}
+
 let toastTimer = null;
 function toast(msg, type){
   const t = $('toast');
@@ -666,8 +703,8 @@ function procCard(p, idx, showDept){
       ${(!p.steps||!p.steps.length) && !p.notes ? `<div style="color:var(--muted);font-size:13.5px">Brak opisanych kroków — procedura do uzupełnienia.</div>`:''}
       <div class="proc-actions">
         ${hasCeremony ? `<button class="btn btn-gold btn-sm" data-sufler="${esc(p.id)}">🎤 Tryb suflera</button>` : ''}
-        <button class="btn btn-ghost btn-sm" data-edit="${esc(p.id)}">Edytuj</button>
-        <button class="btn btn-danger btn-sm" data-del="${esc(p.id)}">Usuń</button>
+        ${editMode ? `<button class="btn btn-ghost btn-sm" data-edit="${esc(p.id)}">Edytuj</button>
+        <button class="btn btn-danger btn-sm" data-del="${esc(p.id)}">Usuń</button>` : ''}
       </div>
     </div>
   </div>`;
@@ -677,7 +714,7 @@ function render(){
   renderNav();
   const c = $('content');
   const noAdd = ['log','org','fav'];
-  $('btn-add').style.display = (noAdd.includes(currentView.type) && !searchQ) ? 'none':'inline-flex';
+  $('btn-add').style.display = (editMode && !(noAdd.includes(currentView.type) && !searchQ)) ? 'inline-flex':'none';
 
   if(loadError){
     $('crumb').textContent = 'Błąd';
@@ -892,6 +929,7 @@ document.addEventListener('keydown', e=>{
     closeModal();
     $('del-overlay').classList.remove('show');
     $('gh-overlay').classList.remove('show');
+    $('pass-overlay').classList.remove('show');
   }
 });
 
@@ -979,6 +1017,38 @@ $('btn-theme').onclick = ()=>{
 };
 initTheme();
 
+/* ══════════════ TRYB EDYCJI: obsługa ══════════════ */
+$('btn-lock').onclick = ()=>{
+  if(editMode){
+    editMode = false;
+    try{ localStorage.removeItem('sc-edithash'); }catch(e){}
+    updateLockBtn(); render();
+    toast('Tryb edycji zablokowany','ok');
+  } else {
+    $('pass-err').style.display = 'none';
+    $('f-pass').value = '';
+    $('pass-overlay').classList.add('show');
+    setTimeout(()=>$('f-pass').focus(), 50);
+  }
+};
+async function passSubmit(){
+  const h = await sha256($('f-pass').value);
+  if(h === EDIT_HASH){
+    editMode = true;
+    try{ localStorage.setItem('sc-edithash', EDIT_HASH); }catch(e){}
+    $('pass-overlay').classList.remove('show');
+    updateLockBtn(); render();
+    toast('Tryb edycji odblokowany ✓','ok');
+  } else {
+    $('pass-err').style.display = 'block';
+    $('f-pass').select();
+  }
+}
+$('pass-ok').onclick = passSubmit;
+$('pass-cancel').onclick = ()=>$('pass-overlay').classList.remove('show');
+$('pass-overlay').onclick = e => { if(e.target===$('pass-overlay')) $('pass-overlay').classList.remove('show'); };
+$('f-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') passSubmit(); });
+
 /* ══════════════ POZOSTAŁE ══════════════ */
 $('btn-refresh').onclick = async ()=>{
   $('btn-refresh').textContent = '⟳ Pobieranie…';
@@ -991,7 +1061,7 @@ $('search').addEventListener('input', e=>{ searchQ = e.target.value.trim(); rend
 
 /* start */
 const splashStart = Date.now();
-loadState().then(()=>{
+Promise.all([loadState(), initEditMode()]).then(()=>{
   render();
   const wait = Math.max(0, 1700 - (Date.now() - splashStart));
   setTimeout(()=>$('splash').classList.add('done'), wait);
